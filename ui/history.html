@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>History – PySearch Browser</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0b0d;
+            --sidebar: #121214;
+            --accent: #a855f7;
+            --text: #ffffff;
+            --muted: #8e8e93;
+            --border: rgba(255,255,255,0.06);
+            --card: rgba(255,255,255,0.03);
+            --card-hover: rgba(255,255,255,0.06);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ── SIDEBAR ── */
+        aside {
+            width: 260px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .brand img { width: 24px; height: 24px; filter: drop-shadow(0 0 10px var(--accent)); }
+        .brand span { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+
+        .nav-item {
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover { color: var(--text); background: var(--card-hover); }
+        .nav-item.active { color: white; background: var(--accent); }
+
+        .clear-btn {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,0,0,0.2);
+            color: #ff4d4d;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .clear-btn:hover { background: rgba(255,77,77,0.1); }
+
+        /* ── MAIN CONTENT ── */
+        main {
+            flex: 1;
+            padding: 40px 60px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        h1 { font-size: 32px; font-weight: 700; }
+
+        .search-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 20px;
+            width: 350px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none; outline: none;
+            color: white; flex: 1;
+            font-size: 14px;
+        }
+
+        .day-section { margin-bottom: 40px; }
+        .day-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .history-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .history-item {
+            background: var(--card);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .history-item:hover {
+            background: var(--card-hover);
+            border-color: var(--border);
+            transform: translateX(5px);
+        }
+
+        .time { color: var(--muted); font-size: 12px; width: 60px; }
+        .info { flex: 1; overflow: hidden; }
+        .title { font-size: 15px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .url { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .delete-item {
+            color: var(--muted);
+            font-size: 18px;
+            opacity: 0;
+            transition: 0.2s;
+            padding: 5px;
+        }
+        .history-item:hover .delete-item { opacity: 1; }
+        .delete-item:hover { color: #ff4d4d; }
+
+        /* ── CURSOR GLOW ── */
+        #cursor-glow {
+            position: fixed;
+            top: 0; left: 0;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            will-change: left, top;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="cursor-glow"></div>
+
+    <aside>
+        <div class="brand">
+            <img src="../assets/pysearch_mascot.png" alt="PySearch" style="width: 24px; height: 24px; object-fit: contain; background: transparent;">
+            <span>PySearch History</span>
+        </div>
+        <div class="nav-item active">All History</div>
+        <div class="nav-item">Today</div>
+        <div class="nav-item">Yesterday</div>
+        <div class="nav-item">Older</div>
+        
+        <div class="clear-btn" id="btn-clear-all">Clear All History</div>
+    </aside>
+
+    <main>
+        <header>
+            <h1>History</h1>
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="search-input" placeholder="Search history...">
+            </div>
+        </header>
+
+        <div id="history-container">
+            <!-- Loaded via JS -->
+        </div>
+    </main>
+
+    <script>
+        const api = window.pyBrowser;
+        const container = document.getElementById('history-container');
+        const glow = document.getElementById('cursor-glow');
+
+        document.addEventListener('mousemove', (e) => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        });
+
+        async function loadHistory() {
+            const history = await api.getHistory();
+            renderHistory(history);
+        }
+
+        function renderHistory(items) {
+            container.innerHTML = '';
+            
+            // Group by day
+            const groups = {};
+            items.forEach(item => {
+                const date = new Date(item.timestamp);
+                const day = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+                if (!groups[day]) groups[day] = [];
+                groups[day].push(item);
+            });
+
+            for (const day in groups) {
+                const section = document.createElement('div');
+                section.className = 'day-section';
+                section.innerHTML = `
+                    <div class="day-title">${day}</div>
+                    <div class="history-list">
+                        ${groups[day].map(item => `
+                            <div class="history-item" onclick="navigate('${item.url}')">
+                                <div class="time">${new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                <div class="info">
+                                    <div class="title">${item.title || item.url}</div>
+                                    <div class="url">${item.url}</div>
+                                </div>
+                                <div class="delete-item">✕</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(section);
+            }
+
+            if (items.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:var(--muted); margin-top:100px;">No history found.</div>';
+            }
+        }
+
+        function navigate(url) {
+            if (api && api.sendToHost) api.sendToHost('navigate', url);
+            else window.location.href = url;
+        }
+
+        document.getElementById('btn-clear-all').addEventListener('click', async () => {
+            if (confirm('Are you sure you want to clear all history?')) {
+                await api.clearHistory();
+                loadHistory();
+            }
+        });
+
+        document.getElementById('search-input').addEventListener('input', async (e) => {
+            const query = e.target.value.toLowerCase();
+            const history = await api.getHistory();
+            const filtered = history.filter(item => 
+                (item.title && item.title.toLowerCase().includes(query)) || 
+                item.url.toLowerCase().includes(query)
+            );
+            renderHistory(filtered);
+        });
+
+        loadHistory();
+    </script>
+</body>
+</html>

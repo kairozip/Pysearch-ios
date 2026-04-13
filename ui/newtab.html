@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Landing – PySearch Browser</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0b0d;
+      --card-bg: rgba(28, 28, 30, 0.4);
+      --card-hover: rgba(44, 44, 46, 0.6);
+      --text: #ffffff;
+      --muted: #a1a1aa;
+      --accent: #a855f7;
+      --accent-glow: rgba(168, 85, 247, 0.3);
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── DYNAMIC BACKGROUND (MESH GRADIENT) ── */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(168, 85, 247, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 40%);
+      z-index: -1;
+    }
+
+    #cursor-glow {
+      position: fixed;
+      top: 0; left: 0;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.8;
+      transform: translate(-50%, -50%); /* Keeps it centered under the cursor point */
+      will-change: transform;
+    }
+
+    .main-content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 900px;
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── HEADER: CLOCK & GREETING ── */
+    #header {
+      text-align: center;
+      margin-bottom: 50px;
+      animation: fadeInDown 1s ease-out;
+    }
+
+    #clock {
+      font-size: 80px;
+      font-weight: 700;
+      letter-spacing: -2px;
+      margin-bottom: 10px;
+      background: linear-gradient(to bottom, #fff, #a1a1aa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    #date-greeting {
+      font-size: 18px;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── LOGO SECTION (avatar stacked above PYSEARCH) ── */
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 40px;
+      animation: fadeIn 1.2s ease-out;
+      text-align: center;
+      gap: 14px;
+    }
+
+    .brand-avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      object-fit: contain;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 3px solid rgba(168, 85, 247, 0.4);
+      box-shadow: 0 0 36px var(--accent-glow);
+      background: transparent;
+    }
+
+    .logo-text {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: -3px;
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .logo-subtext {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    /* ── SEARCH BOX ── */
+    .search-container {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 60px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .search-box {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.2);
+      transform: translateY(-2px);
+      background: rgba(28, 28, 30, 0.7);
+    }
+
+    #search-input {
+      flex: 1;
+      background: transparent;
+      border: none; outline: none;
+      color: white; font-size: 18px;
+      font-weight: 400;
+    }
+
+    /* ── SPEED DIAL (QUICK LINKS) ── */
+    .section-title {
+      width: 100%;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      padding-left: 10px;
+    }
+
+    .grid-container {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 20px;
+      margin-bottom: 60px;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .shortcut {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+    }
+
+    .shortcut:hover {
+      background: var(--card-hover);
+      border-color: var(--accent);
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.4);
+    }
+
+    .shortcut-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--accent);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .shortcut-icon img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .shortcut-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #eee;
+    }
+
+    /* ── RECENT HISTORY ── */
+    .history-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeInUp 1.2s ease-out;
+    }
+
+    .history-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .history-item:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
+
+    .history-info { flex: 1; overflow: hidden; }
+    .history-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-url { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInDown {
+      from { opacity:0; transform: translateY(-20px); }
+      to { opacity:1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity:0; transform: translateY(30px); }
+      to { opacity:1; transform: translateY(0); }
+    }
+
+    /* ── TOP HEADER (GOOGLE STYLE) ── */
+    .top-header {
+      position: absolute;
+      top: 15px; right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      z-index: 100;
+      animation: fadeIn 1s ease-out;
+    }
+    .top-header a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .top-header a:hover { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+    .header-icon { 
+      color: rgba(255,255,255,0.7); cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-icon:hover { color: var(--accent); }
+    .header-icon svg { width: 20px; height: 20px; fill: currentColor; }
+    .profile-pic {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .profile-pic img { width: 100%; height: 100%; object-fit: contain; background: transparent; }
+
+    /* ── CUSTOMIZE MODAL ── */
+    #customize-trigger {
+        position: fixed;
+        bottom: 25px; right: 25px;
+        background: rgba(28,28,30,0.6);
+        backdrop-filter: blur(10px);
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        z-index: 1000;
+        transition: 0.3s;
+    }
+    #customize-trigger:hover { background: var(--accent); transform: rotate(45deg); }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(20px);
+        display: none;
+        align-items: center; justify-content: center;
+        z-index: 10001;
+        animation: fadeIn 0.2s ease-out;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .customize-modal {
+        width: 800px;
+        height: 550px;
+        background: #1c1c1e;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        display: flex;
+        overflow: hidden;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    }
+    
+    .modal-sidebar {
+        width: 220px;
+        background: #121214;
+        border-right: 1px solid var(--border);
+        padding: 30px 20px;
+        display: flex; flex-direction: column; gap: 8px;
+    }
+    .sidebar-btn {
+        padding: 12px 15px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .sidebar-btn.active { background: rgba(168,85,247,0.1); color: var(--accent); }
+    .sidebar-btn:hover:not(.active) { background: rgba(255,255,255,0.03); color: #fff; }
+
+    .modal-content {
+        flex: 1;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    .modal-title { font-size: 24px; font-weight: 700; margin-bottom: 30px; }
+
+    .bg-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+    .bg-card {
+        aspect-ratio: 16/10;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex; align-items: center; justify-content: center;
+        background-size: cover;
+        background-position: center;
+        overflow: hidden;
+        position: relative;
+    }
+    .bg-card.upload { background: rgba(255,255,255,0.03); border: 2px dashed var(--border); flex-direction: column; gap: 8px; font-size: 12px; color: var(--muted); }
+    .bg-card.upload:hover { border-color: var(--accent); color: #fff; }
+    .bg-card:hover:not(.upload) { transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
+    .bg-card.active { border-color: var(--accent); }
+
+    .modal-footer {
+        margin-top: auto;
+        padding-top: 30px;
+        display: flex; justify-content: flex-end;
+        gap: 12px;
+    }
+    .modal-btn {
+        padding: 10px 24px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .btn-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-save { background: var(--accent); color: white; border: none; }
+    .btn-save:hover { opacity: 0.9; }
+
+    /* ── ACCOUNT HUB MODAL ── */
+    #account-hub-overlay {
+        position: absolute;
+        top: 60px; right: 20px;
+        width: 380px;
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(40px);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        padding: 30px;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+        z-index: 1000;
+        animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #account-hub-overlay.active { display: flex; }
+
+    .hub-profile {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .hub-avatar {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        margin-bottom: 12px;
+        border: 3px solid var(--accent);
+        padding: 6px;
+        box-sizing: border-box;
+        object-fit: contain;
+        background: transparent;
+    }
+    .hub-email { 
+        font-size: 14px; 
+        color: var(--muted); 
+        background: rgba(255,255,255,0.05);
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-top: 5px;
+    }
+
+    .hub-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        width: 100%;
+        margin-top: 20px;
+    }
+    .hub-item {
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        cursor: pointer; transition: 0.2s;
+        padding: 10px; border-radius: 16px;
+    }
+    .hub-item:hover { background: rgba(255,255,255,0.08); transform: translateY(-3px); }
+    .hub-icon { 
+        width: 44px; height: 44px; 
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 12px; font-size: 20px;
+        background: rgba(255,255,255,0.06);
+    }
+    .hub-icon img {
+        width: 28px; height: 28px;
+        object-fit: contain;
+    }
+
+    .shortcut-editor-rows { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; margin-bottom: 8px; }
+    .shortcut-editor-row {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr) auto;
+        gap: 8px;
+        align-items: center;
+    }
+    .shortcut-editor-row input {
+        background: #121214;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        color: #fff;
+        font-size: 12px;
+    }
+    .editor-add, .shortcuts-action {
+        padding: 8px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #2c2c2e;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 12px;
+        margin-right: 8px;
+        margin-top: 4px;
+    }
+    .editor-add:hover, .shortcuts-action:hover { background: #3a3a3c; }
+    .shortcuts-action.primary { background: var(--accent); border-color: transparent; }
+    .editor-section-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin: 18px 0 8px;
+        font-weight: 700;
+    }
+    .row-remove {
+        background: transparent;
+        border: none;
+        color: #f87171;
+        cursor: pointer;
+        font-size: 20px;
+        line-height: 1;
+        padding: 4px 8px;
+    }
+    #customize-panel-shortcuts .modal-hint { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
+  </style>
+</head>
+<body>
+
+  <!-- Google Style Header -->
+  <nav class="top-header">
+    <a href="#" onclick="navigate('https://mail.google.com')">Gmail</a>
+    <a href="#" onclick="navigate('https://www.google.com/imghp')">Images</a>
+    <div class="header-icon" title="Labs" aria-hidden="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h2v3H9V3zm4 0h2v6h-2V3zM6 8h12v2h-1v6a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3v-6H6V8zm3 2v6a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-6H9z"/></svg>
+    </div>
+    <div class="header-icon" id="apps-grid-trigger" title="Apps" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+    </div>
+    <div class="profile-pic" id="profile-trigger">
+        <img id="user-avatar" src="../assets/pysearch_mascot.png" alt="User">
+    </div>
+  </nav>
+
+  <!-- Account Hub Modal -->
+  <div id="account-hub-overlay">
+      <div class="hub-profile">
+           <img id="hub-avatar-large" class="hub-avatar" src="../assets/pysearch_mascot.png">
+          <h3 id="hub-name">PySearch Pilot</h3>
+          <div id="hub-email" class="hub-email">Secured by PySearch</div>
+      </div>
+      
+      <div style="width:100%; height:1px; background:var(--border); margin:10px 0;"></div>
+      <h4 style="width:100%; font-size:12px; color:var(--muted); margin-top:15px; text-transform:uppercase; letter-spacing:1px;">Your favorites</h4>
+
+      <div class="hub-grid" id="hub-links-root"></div>
+      
+      <button class="modal-btn btn-save" style="margin-top:30px; width:100%;" onclick="navigate('https://accounts.google.com')">Manage Account</button>
+  </div>
+
+  <div id="cursor-glow"></div>
+
+  <div class="main-content">
+    <div id="header">
+      <div id="clock">00:00</div>
+      <div id="date-greeting">Good morning, hope you have a great day.</div>
+    </div>
+
+    <div class="logo-container">
+      <img id="brand-avatar" class="brand-avatar" src="../assets/pysearch_mascot.png" alt="">
+      <span class="logo-text">PYSEARCH</span>
+      <div class="logo-subtext">The Privacy-Focused Browser</div>
+    </div>
+    
+    <div class="search-container">
+      <div class="search-box">
+        <input id="search-input" type="text" placeholder="What are we searching for today?" autofocus>
+      </div>
+    </div>
+
+    <div class="section-title">Quick Access</div>
+    <div class="grid-container" id="quick-access-grid"></div>
+
+    <div class="section-title">Protective Dashboard</div>
+    <div class="grid-container" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="shortcut" style="cursor: default;">
+            <div class="shortcut-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 3l7 4v5c0 5-3.5 9-7 10-3.5-1-7-5-7-10V7l7-4z"/></svg>
+            </div>
+            <div class="shortcut-title" id="dash-blocked">0 Trackers Blocked</div>
+            <div style="font-size: 10px; color: var(--muted); margin-top: 5px;">PySearch Protection Active</div>
+        </div>
+        <div class="shortcut" style="cursor: default;">
+            <div class="shortcut-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="1.5"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg>
+            </div>
+            <div class="shortcut-title" id="dash-time">0s Saved</div>
+            <div style="font-size: 10px; color: var(--muted); margin-top: 5px;">Browser Optimized</div>
+        </div>
+    </div>
+
+    <div class="section-title">Continue Where You Left Off</div>
+    <div id="history-container" class="history-list">
+      <!-- Loaded via JS -->
+    </div>
+
+    <!-- Apps Grid Menu (Fixed) -->
+    <div id="apps-grid-menu" class="modal-overlay" style="position:fixed; top:70px; right:20px; width:300px; height:auto; background:rgba(28,28,30,0.95); border:1px solid var(--border); border-radius:15px; z-index:1000;">
+        <div id="apps-menu-grid" style="padding:20px; display:grid; grid-template-columns:repeat(3, 1fr); gap:15px;"></div>
+    </div>
+
+    <!-- Customize Trigger -->
+    <div id="customize-trigger" title="Customize Page" aria-label="Customize">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </div>
+
+    <!-- Customize Modal -->
+    <div id="customize-modal-overlay" class="modal-overlay">
+        <div class="customize-modal">
+            <aside class="modal-sidebar">
+                <div class="sidebar-btn active" data-panel="bg">Background</div>
+                <div class="sidebar-btn" data-panel="shortcuts">Shortcuts</div>
+                <div class="sidebar-btn" data-panel="cards">Cards</div>
+            </aside>
+            <main class="modal-content">
+                <h1 class="modal-title" id="customize-modal-heading">Customize this page</h1>
+
+                <div id="customize-panel-bg">
+                    <div class="bg-grid">
+                        <div class="bg-card upload" id="btn-upload-bg">
+                            <span style="font-size: 24px;">↥</span>
+                            <span>Upload from device</span>
+                        </div>
+                        <div class="bg-card" style="background-image: linear-gradient(135deg, #1c1c1e 0%, #0b0b0d 100%);" data-bg="linear-gradient(135deg, #1c1c1e 0%, #0b0b0d 100%)"></div>
+                        <div class="bg-card" style="background-image: linear-gradient(135deg, #4c1d95 0%, #0b0b0d 100%);" data-bg="linear-gradient(135deg, #4c1d95 0%, #0b0b0d 100%)"></div>
+                        <div class="bg-card" style="background-image: linear-gradient(45deg, #1e3a8a 0%, #0b0b0d 100%);" data-bg="linear-gradient(45deg, #1e3a8a 0%, #0b0b0d 100%)"></div>
+                        <div class="bg-card" style="background-image: linear-gradient(to right, #000, #434343);" data-bg="linear-gradient(to right, #000, #434343)"></div>
+                    </div>
+                </div>
+
+                <div id="customize-panel-shortcuts" style="display:none;">
+                    <p class="modal-hint">Quick Access, the account menu, and the apps launcher use real site icons (via Google favicons). Optional “Icon URL” overrides the logo. Visit Google or Gmail while signed in to sync your profile photo.</p>
+                    <div class="editor-section-title">Quick access (home page)</div>
+                    <div class="shortcut-editor-rows" id="editor-quick-access"></div>
+                    <button type="button" class="editor-add" id="editor-qa-add">+ Add</button>
+
+                    <div class="editor-section-title">Account menu (profile dropdown)</div>
+                    <div class="shortcut-editor-rows" id="editor-hub"></div>
+                    <button type="button" class="editor-add" id="editor-hub-add">+ Add</button>
+
+                    <div class="editor-section-title">Apps launcher (header grid)</div>
+                    <div class="shortcut-editor-rows" id="editor-apps"></div>
+                    <button type="button" class="editor-add" id="editor-apps-add">+ Add</button>
+
+                    <div style="margin-top:16px;">
+                        <button type="button" class="shortcuts-action primary" id="shortcuts-save">Save shortcuts</button>
+                        <button type="button" class="shortcuts-action" id="shortcuts-reset">Reset defaults</button>
+                    </div>
+                </div>
+
+                <div id="customize-panel-cards" style="display:none;">
+                    <p class="modal-hint">Dashboard cards are fixed for now. Use Shortcuts to personalize links on this page.</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="modal-btn btn-cancel" id="btn-modal-close">Done</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <input type="file" id="file-input-bg" style="display: none;" accept="image/*">
+  </div>
+
+  <script>
+    const api = window.pyBrowser;
+    const input = document.getElementById('search-input');
+    const glow = document.getElementById('cursor-glow');
+    const clockEl = document.getElementById('clock');
+    const greetingEl = document.getElementById('date-greeting');
+
+    const DEFAULT_MASCOT = '../assets/pysearch_mascot.png';
+
+    const DEFAULT_QUICK_ACCESS = [
+        { title: 'Google', url: 'https://www.google.com' },
+        { title: 'YouTube', url: 'https://www.youtube.com' },
+        { title: 'GitHub', url: 'https://github.com' },
+        { title: 'Reddit', url: 'https://www.reddit.com' },
+        { title: 'Twitter', url: 'https://twitter.com' }
+    ];
+
+    const DEFAULT_HUB_LINKS = [
+        { title: 'Account', url: 'https://myaccount.google.com' },
+        { title: 'Drive', url: 'https://drive.google.com' },
+        { title: 'Gmail', url: 'https://mail.google.com' },
+        { title: 'YouTube', url: 'https://www.youtube.com' },
+        { title: 'Gemini', url: 'https://gemini.google.com' },
+        { title: 'Maps', url: 'https://maps.google.com' }
+    ];
+
+    const DEFAULT_APPS_LINKS = [
+        { title: 'Google', url: 'https://www.google.com' },
+        { title: 'YouTube', url: 'https://www.youtube.com' },
+        { title: 'GitHub', url: 'https://github.com' }
+    ];
+
+    function faviconForUrl(pageUrl) {
+        try {
+            const host = new URL(pageUrl).hostname;
+            return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(host) + '&sz=128';
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function iconForLink(item) {
+        if (item && item.icon) return item.icon;
+        return faviconForUrl(item.url);
+    }
+
+    function renderQuickAccessGrid(list) {
+        const el = document.getElementById('quick-access-grid');
+        if (!el) return;
+        el.innerHTML = '';
+        (list || []).forEach((item) => {
+            if (!item || !item.url) return;
+            const tile = document.createElement('div');
+            tile.className = 'shortcut';
+            tile.addEventListener('click', () => navigate(item.url));
+            const iconWrap = document.createElement('div');
+            iconWrap.className = 'shortcut-icon';
+            const img = document.createElement('img');
+            img.src = iconForLink(item);
+            img.alt = '';
+            img.referrerPolicy = 'no-referrer';
+            img.loading = 'lazy';
+            iconWrap.appendChild(img);
+            const title = document.createElement('div');
+            title.className = 'shortcut-title';
+            title.textContent = item.title || item.url;
+            tile.appendChild(iconWrap);
+            tile.appendChild(title);
+            el.appendChild(tile);
+        });
+    }
+
+    function renderHubGrid(list) {
+        const el = document.getElementById('hub-links-root');
+        if (!el) return;
+        el.innerHTML = '';
+        (list || []).forEach((item) => {
+            if (!item || !item.url) return;
+            const tile = document.createElement('div');
+            tile.className = 'hub-item';
+            tile.addEventListener('click', () => navigate(item.url));
+            const iconWrap = document.createElement('div');
+            iconWrap.className = 'hub-icon';
+            const img = document.createElement('img');
+            img.src = iconForLink(item);
+            img.alt = '';
+            img.referrerPolicy = 'no-referrer';
+            img.loading = 'lazy';
+            iconWrap.appendChild(img);
+            const cap = document.createElement('div');
+            cap.style.fontSize = '12px';
+            cap.textContent = item.title || item.url;
+            tile.appendChild(iconWrap);
+            tile.appendChild(cap);
+            el.appendChild(tile);
+        });
+    }
+
+    function renderAppsMenu(list) {
+        const el = document.getElementById('apps-menu-grid');
+        if (!el) return;
+        el.innerHTML = '';
+        (list || []).forEach((item) => {
+            if (!item || !item.url) return;
+            const tile = document.createElement('div');
+            tile.className = 'hub-item';
+            tile.addEventListener('click', () => navigate(item.url));
+            const iconWrap = document.createElement('div');
+            iconWrap.className = 'hub-icon';
+            const img = document.createElement('img');
+            img.src = iconForLink(item);
+            img.alt = '';
+            img.referrerPolicy = 'no-referrer';
+            img.loading = 'lazy';
+            iconWrap.appendChild(img);
+            tile.appendChild(iconWrap);
+            el.appendChild(tile);
+        });
+    }
+
+    function applyProfileUi(s) {
+        const custom = s && s.userProfile && s.userProfile.avatarUrl;
+        const avatar = custom ? s.userProfile.avatarUrl : DEFAULT_MASCOT;
+        const userImg = document.getElementById('user-avatar');
+        const hubLarge = document.getElementById('hub-avatar-large');
+        const brand = document.getElementById('brand-avatar');
+        if (userImg) userImg.src = avatar;
+        if (hubLarge) hubLarge.src = avatar;
+        if (brand) brand.src = avatar;
+
+        const emailEl = document.getElementById('hub-email');
+        if (emailEl) {
+            if (s && s.userProfile && s.userProfile.email) {
+                emailEl.textContent = s.userProfile.email;
+            } else if (custom) {
+                emailEl.textContent = 'Signed in with Google';
+            } else {
+                emailEl.textContent = 'Secured by PySearch';
+            }
+        }
+        const nameEl = document.getElementById('hub-name');
+        if (nameEl) {
+            const em = s && s.userProfile && s.userProfile.email;
+            nameEl.textContent = em ? em.split('@')[0] : 'PySearch Pilot';
+        }
+    }
+
+    function linkListFromSettings(s) {
+        return {
+            qa: Array.isArray(s.quickAccess) && s.quickAccess.length ? s.quickAccess : DEFAULT_QUICK_ACCESS.slice(),
+            hub: Array.isArray(s.accountHubLinks) && s.accountHubLinks.length ? s.accountHubLinks : DEFAULT_HUB_LINKS.slice(),
+            apps: Array.isArray(s.appsMenuLinks) && s.appsMenuLinks.length ? s.appsMenuLinks : DEFAULT_APPS_LINKS.slice()
+        };
+    }
+
+    function renderAllShortcutUis(s) {
+        const lists = linkListFromSettings(s || {});
+        renderQuickAccessGrid(lists.qa);
+        renderHubGrid(lists.hub);
+        renderAppsMenu(lists.apps);
+    }
+
+    // ── CLOCK & GREETING ──
+    function updateClock() {
+        const now = new Date();
+        let hours = now.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        const mins = String(now.getMinutes()).padStart(2, '0');
+        
+        clockEl.textContent = `${hours}:${mins} ${ampm}`;
+
+        const hour = now.getHours();
+        let greeting = "Good evening";
+        if (hour < 12) greeting = "Good morning";
+        else if (hour < 18) greeting = "Good afternoon";
+
+        const options = { weekday: 'long', month: 'long', day: 'numeric' };
+        const dateStr = now.toLocaleDateString(undefined, options);
+        greetingEl.textContent = `${greeting}, it's ${dateStr}`;
+    }
+    // ── SETTINGS & BACKGROUND ──
+    async function initSettings() {
+        if (!api || !api.getSettings) return;
+        const s = await api.getSettings() || {};
+        applyAllSettings(s);
+    }
+
+    function applyAllSettings(s) {
+        if (!s) return;
+        if (s.background) applyBackground(s.background);
+        applyProfileUi(s);
+        renderAllShortcutUis(s);
+    }
+
+    function applyBackground(bg) {
+        if (!bg) return;
+        if (bg.type === 'color') {
+            document.body.style.backgroundColor = bg.value;
+            document.body.style.backgroundImage = 'none';
+        } else if (bg.type === 'gradient') {
+            document.body.style.backgroundImage = bg.value;
+        } else if (bg.type === 'image') {
+            document.body.style.backgroundImage = `url('${bg.value}')`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+        }
+    }
+
+    async function persistBackground(bg) {
+        applyBackground(bg);
+        if (!api || !api.getSettings || !api.saveSettings) return;
+        try {
+            const prev = await api.getSettings() || {};
+            api.saveSettings({ ...prev, background: bg });
+        } catch (e) {}
+    }
+
+    // ── CUSTOMIZE MODAL LOGIC ──
+    const trigger = document.getElementById('customize-trigger');
+    const modalOverlay = document.getElementById('customize-modal-overlay');
+    const modalClose = document.getElementById('btn-modal-close');
+    const btnUpload = document.getElementById('btn-upload-bg');
+    const fileInput = document.getElementById('file-input-bg');
+    const panelBg = document.getElementById('customize-panel-bg');
+    const panelShortcuts = document.getElementById('customize-panel-shortcuts');
+    const panelCards = document.getElementById('customize-panel-cards');
+    const modalHeading = document.getElementById('customize-modal-heading');
+    const sidebarBtns = document.querySelectorAll('.modal-sidebar .sidebar-btn');
+
+    let editorDraft = { qa: [], hub: [], apps: [] };
+
+    function showCustomizePanel(panelId) {
+        if (panelBg) panelBg.style.display = panelId === 'bg' ? 'block' : 'none';
+        if (panelShortcuts) panelShortcuts.style.display = panelId === 'shortcuts' ? 'block' : 'none';
+        if (panelCards) panelCards.style.display = panelId === 'cards' ? 'block' : 'none';
+        if (modalHeading) {
+            modalHeading.textContent =
+                panelId === 'bg' ? 'Customize this page' :
+                panelId === 'shortcuts' ? 'Shortcuts' : 'Cards';
+        }
+    }
+
+    function cloneLinks(arr) {
+        return (arr || []).map((x) => ({ title: x.title || '', url: x.url || '', icon: x.icon || '' }));
+    }
+
+    function fillEditor(containerId, key) {
+        const c = document.getElementById(containerId);
+        if (!c) return;
+        c.innerHTML = '';
+        editorDraft[key].forEach((item) => {
+            const row = document.createElement('div');
+            row.className = 'shortcut-editor-row';
+            const t = document.createElement('input');
+            t.type = 'text';
+            t.placeholder = 'Name';
+            t.value = item.title || '';
+            t.addEventListener('input', () => { item.title = t.value; });
+            const u = document.createElement('input');
+            u.type = 'text';
+            u.placeholder = 'https://…';
+            u.value = item.url || '';
+            u.addEventListener('input', () => { item.url = u.value; });
+            const ic = document.createElement('input');
+            ic.type = 'text';
+            ic.placeholder = 'Icon URL (optional)';
+            ic.value = item.icon || '';
+            ic.addEventListener('input', () => { item.icon = ic.value; });
+            const rm = document.createElement('button');
+            rm.type = 'button';
+            rm.className = 'row-remove';
+            rm.setAttribute('aria-label', 'Remove');
+            rm.textContent = '×';
+            rm.addEventListener('click', () => {
+                editorDraft[key] = editorDraft[key].filter((x) => x !== item);
+                fillEditor(containerId, key);
+            });
+            row.appendChild(t);
+            row.appendChild(u);
+            row.appendChild(ic);
+            row.appendChild(rm);
+            c.appendChild(row);
+        });
+    }
+
+    function populateShortcutEditors() {
+        if (!api || !api.getSettings) return;
+        api.getSettings().then((s) => {
+            const lists = linkListFromSettings(s || {});
+            editorDraft.qa = cloneLinks(lists.qa);
+            editorDraft.hub = cloneLinks(lists.hub);
+            editorDraft.apps = cloneLinks(lists.apps);
+            fillEditor('editor-quick-access', 'qa');
+            fillEditor('editor-hub', 'hub');
+            fillEditor('editor-apps', 'apps');
+        });
+    }
+
+    sidebarBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            sidebarBtns.forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+            showCustomizePanel(btn.dataset.panel);
+            if (btn.dataset.panel === 'shortcuts') populateShortcutEditors();
+        });
+    });
+
+    document.getElementById('editor-qa-add').onclick = () => {
+        editorDraft.qa.push({ title: 'New site', url: 'https://', icon: '' });
+        fillEditor('editor-quick-access', 'qa');
+    };
+    document.getElementById('editor-hub-add').onclick = () => {
+        editorDraft.hub.push({ title: 'New', url: 'https://', icon: '' });
+        fillEditor('editor-hub', 'hub');
+    };
+    document.getElementById('editor-apps-add').onclick = () => {
+        editorDraft.apps.push({ title: 'New', url: 'https://', icon: '' });
+        fillEditor('editor-apps', 'apps');
+    };
+
+    document.getElementById('shortcuts-save').onclick = async () => {
+        if (!api || !api.getSettings || !api.saveSettings) return;
+        const prev = await api.getSettings() || {};
+        const clean = (arr) => arr
+            .filter((x) => x && x.url && String(x.url).trim())
+            .map((x) => {
+                const url = String(x.url).trim();
+                let title = (x.title || '').trim();
+                if (!title) {
+                    try { title = new URL(url).hostname.replace(/^www\./, ''); } catch (e) { title = url; }
+                }
+                const icon = (x.icon || '').trim();
+                const o = { title, url };
+                if (icon) o.icon = icon;
+                return o;
+            });
+        api.saveSettings({
+            ...prev,
+            quickAccess: clean(editorDraft.qa),
+            accountHubLinks: clean(editorDraft.hub),
+            appsMenuLinks: clean(editorDraft.apps)
+        });
+    };
+
+    document.getElementById('shortcuts-reset').onclick = async () => {
+        if (!confirm('Reset Quick Access, account menu, and apps launcher to defaults?')) return;
+        if (!api || !api.getSettings || !api.saveSettings) return;
+        const prev = await api.getSettings() || {};
+        delete prev.quickAccess;
+        delete prev.accountHubLinks;
+        delete prev.appsMenuLinks;
+        api.saveSettings(prev);
+    };
+
+    trigger.onclick = () => {
+        modalOverlay.classList.add('active');
+        sidebarBtns.forEach((b) => b.classList.toggle('active', b.dataset.panel === 'bg'));
+        showCustomizePanel('bg');
+    };
+    modalClose.onclick = () => modalOverlay.classList.remove('active');
+    
+    // Close on overlay click
+    modalOverlay.onclick = (e) => {
+        if (e.target === modalOverlay) modalOverlay.classList.remove('active');
+    };
+
+    // Preset cards
+    document.querySelectorAll('.bg-card[data-bg]').forEach(card => {
+        card.onclick = () => {
+            const bg = { type: 'gradient', value: card.dataset.bg };
+            persistBackground(bg);
+        };
+    });
+
+    // Upload
+    btnUpload.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const bg = { type: 'image', value: event.target.result };
+            persistBackground(bg);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    initSettings();
+
+    if (api && api.onSettingsUpdated) {
+        api.onSettingsUpdated((s) => applyAllSettings(s));
+    }
+
+    // Header Triggers
+    const appsTrigger = document.getElementById('apps-grid-trigger');
+    const appsMenu    = document.getElementById('apps-grid-menu');
+    const profileTrigger = document.getElementById('profile-trigger');
+    const accountHub     = document.getElementById('account-hub-overlay');
+
+    appsTrigger.onclick = (e) => {
+        e.stopPropagation();
+        appsMenu.classList.toggle('active');
+        accountHub.classList.remove('active');
+    };
+    profileTrigger.onclick = (e) => {
+        e.stopPropagation();
+        accountHub.classList.toggle('active');
+        appsMenu.classList.remove('active');
+    };
+    document.addEventListener('click', () => {
+        appsMenu.classList.remove('active');
+        accountHub.classList.remove('active');
+    });
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ── HISTORY ──
+    async function loadHistory() {
+        if (!api) return;
+        const history = await api.getHistory();
+        const container = document.getElementById('history-container');
+        container.innerHTML = '';
+
+        // Show last 4 items
+        history.slice(0, 4).forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'history-item';
+            el.innerHTML = `
+                <div class="history-info">
+                    <div class="history-title">${item.title || item.url}</div>
+                    <div class="history-url">${item.url}</div>
+                </div>
+            `;
+            el.onclick = () => navigate(item.url);
+            container.appendChild(el);
+        });
+
+        if (history.length === 0) {
+            container.innerHTML = '<div style="color:var(--muted); font-size:14px; padding:10px;">Your recent activity will appear here.</div>';
+        }
+    }
+    loadHistory();
+
+    // ── PRIVACY DASHBOARD ──
+    if (api && api.onPrivacyBlocked) {
+        api.onPrivacyBlocked((count) => {
+            const blockedEl = document.getElementById('dash-blocked');
+            const timeEl = document.getElementById('dash-time');
+            if (blockedEl) blockedEl.textContent = `${count} Trackers Blocked`;
+            if (timeEl) timeEl.textContent = `${(count * 0.5).toFixed(1)}s Saved`;
+        });
+    }
+
+    // ── CURSOR GLOW ──
+    document.addEventListener('mousemove', (e) => {
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+    });
+
+    // ── NAVIGATION ──
+    function navigate(val) {
+        if (!val) return;
+        let url = val;
+        const isUrl = /^https?:\/\//i.test(val) || (/^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/.*)?$/.test(val) && !val.includes(' '));
+        
+        if (!isUrl) {
+            url = `https://duckduckgo.com/?q=${encodeURIComponent(val)}`;
+        } else if (!/^https?:\/\//i.test(val)) {
+            url = 'https://' + val;
+        }
+
+        if (api && api.sendToHost) {
+            api.sendToHost('navigate', url);
+        } else {
+            window.location.href = url;
+        }
+    }
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') navigate(input.value);
+    });
+  </script>
+</body>
+</html>

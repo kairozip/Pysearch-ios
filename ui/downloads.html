@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Downloads – PySearch Browser</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0b0d;
+            --sidebar: #121214;
+            --accent: #a855f7;
+            --text: #ffffff;
+            --muted: #8e8e93;
+            --border: rgba(255,255,255,0.06);
+            --card: rgba(255,255,255,0.03);
+            --card-hover: rgba(255,255,255,0.06);
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ── SIDEBAR ── */
+        aside {
+            width: 260px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .brand img { filter: drop-shadow(0 0 10px var(--accent)); }
+        .brand span { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+
+        .nav-item {
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover { color: var(--text); background: var(--card-hover); }
+        .nav-item.active { color: white; background: var(--accent); }
+
+        .open-folder-btn {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .open-folder-btn:hover { background: var(--card-hover); border-color: var(--accent); }
+
+        /* ── MAIN CONTENT ── */
+        main {
+            flex: 1;
+            padding: 40px 60px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        h1 { font-size: 32px; font-weight: 700; }
+
+        .download-list { display: flex; flex-direction: column; gap: 15px; }
+
+        .download-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: 0.2s;
+        }
+
+        .download-item:hover { background: var(--card-hover); border-color: rgba(255,255,255,0.1); }
+
+        .file-icon {
+            width: 48px; height: 48px;
+            background: rgba(168, 85, 247, 0.1);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: var(--accent);
+        }
+
+        .info { flex: 1; min-width: 0; }
+        .name { font-size: 16px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stats { font-size: 12px; color: var(--muted); display: flex; gap: 15px; }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .downloading .progress-container { display: block; }
+
+        .actions { display: flex; gap: 10px; }
+        .action-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.1); }
+        .action-btn.primary { background: var(--accent); color: white; }
+        .action-btn.primary:hover { opacity: 0.9; }
+
+        /* ── CURSOR GLOW ── */
+        #cursor-glow {
+            position: fixed;
+            top: 0; left: 0;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            will-change: left, top;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="cursor-glow"></div>
+
+    <aside>
+        <div class="brand">
+            <img src="../assets/pysearch_mascot.png" alt="PySearch" style="width: 24px; height: 24px; object-fit: contain; background: transparent;">
+            <span>PySearch Downloads</span>
+        </div>
+        <div class="nav-item active">All Downloads</div>
+        <div class="nav-item">Active</div>
+        <div class="nav-item">Completed</div>
+        
+        <div class="open-folder-btn" id="btn-open-folder">Open Downloads Folder</div>
+    </aside>
+
+    <main>
+        <header>
+            <h1>Downloads</h1>
+        </header>
+
+        <div id="downloads-container" class="download-list">
+            <!-- Loaded via JS -->
+        </div>
+    </main>
+
+    <script>
+        const api = window.pyBrowser;
+        const container = document.getElementById('downloads-container');
+        const glow = document.getElementById('cursor-glow');
+
+        document.addEventListener('mousemove', (e) => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        });
+
+        async function loadDownloads() {
+            const downloads = await api.getDownloads();
+            renderDownloads(downloads);
+        }
+
+        function renderDownloads(items) {
+            container.innerHTML = '';
+            
+            items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = `download-item ${item.status === 'progressing' ? 'downloading' : ''}`;
+                
+                const percent = item.total > 0 ? Math.round((item.received / item.total) * 100) : 0;
+                const sizeStr = item.total > 0 ? `${(item.total / 1024 / 1024).toFixed(1)} MB` : 'Unknown size';
+                
+                el.innerHTML = `
+                    <div class="file-icon">📄</div>
+                    <div class="info">
+                        <div class="name">${item.name}</div>
+                        <div class="stats">
+                            <span>${item.status}</span>
+                            <span>${sizeStr}</span>
+                            <span>${new Date(item.timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        ${item.status === 'completed' ? `<button class="action-btn primary" onclick="api.openPath('${item.path.replace(/\\/g, '\\\\')}')">Open File</button>` : ''}
+                        <button class="action-btn" onclick="api.openDownloads()">Show in Folder</button>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+
+            if (items.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:var(--muted); margin-top:100px;">No downloads yet.</div>';
+            }
+        }
+
+        document.getElementById('btn-open-folder').addEventListener('click', () => api.openDownloads());
+
+        // Poll for progress updates
+        setInterval(loadDownloads, 2000);
+        loadDownloads();
+    </script>
+</body>
+</html>
