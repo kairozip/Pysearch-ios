@@ -1,0 +1,115 @@
+{
+  "name": "pysearch-browser",
+  "productName": "PySearch",
+  "version": "1.0.0",
+  "description": "PySearch - The Professional & Protective Browser",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kairozip/PySearcher.git"
+  },
+  "author": "Janet",
+  "copyright": "Copyright © 2026 PySearch",
+  "scripts": {
+    "start": "electron .",
+    "cloud-server": "node cloud-server/server.js",
+    "fix-mascot": "node tools/fix-mascot-alpha.js",
+    "build-icons": "node tools/build-app-icons.js",
+    "icons": "node tools/fix-mascot-alpha.js && node tools/build-app-icons.js",
+    "prebuild": "npm run icons",
+    "prebuild:portable": "npm run icons",
+    "prebuild:dir": "npm run icons",
+    "build": "electron-builder --win --x64",
+    "build:portable": "electron-builder --win portable --x64",
+    "build:dir": "electron-builder --win --dir",
+    "update": "npm run build && node tools/run-latest-installer.js",
+    "package": "electron-packager . PySearch --platform=win32 --arch=x64 --overwrite"
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2",
+    "extract-zip": "^2.0.1"
+  },
+  "devDependencies": {
+    "electron": "^41.2.0",
+    "electron-builder": "^26.8.1",
+    "electron-packager": "^17.1.2",
+    "rcedit": "^3.1.0",
+    "sharp": "^0.34.5",
+    "to-ico": "^1.0.1"
+  },
+  "build": {
+    "appId": "com.pysearch.browser",
+    "productName": "PySearch",
+    "icon": "assets/icon.ico",
+    "afterPack": "tools/after-pack-win-icon.js",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "core/**/*",
+      "features/**/*",
+      "extension-runtime/**/*",
+      "ai/**/*",
+      "sync/**/*",
+      "ui/**/*",
+      "assets/**/*",
+      "services/**/*",
+      "extensions/**/*",
+      "build/installer.nsh",
+      "package.json"
+    ],
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "forceCodeSigning": false
+    },
+    "portable": {
+      "artifactName": "PySearch.exe"
+    },
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "menuCategory": true,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "warningsAsErrors": false,
+      "installerLanguages": [
+        "en_US"
+      ],
+      "language": "1033",
+      "displayLanguageSelector": false,
+      "installerIcon": "assets/icon.ico",
+      "uninstallDisplayName": "PySearch Browser",
+      "guid": "a8f3e2b1-4c5d-6e7f-8091-a2b3c4d5e6f7",
+      "shortcutName": "PySearch",
+      "artifactName": "PySearch-Setup-${version}.exe",
+      "include": "build/installer.nsh",
+      "installerHeaderIcon": "assets/icon.ico"
+    }
+  }
+}
